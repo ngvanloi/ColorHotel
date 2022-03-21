@@ -1,0 +1,594 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<!-- BEGIN HEAD -->
+<!-- Mirrored from radixtouch.in/templates/admin/hotel/source/index.cshtml by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 13 Jan 2020 12:35:49 GMT -->
+<head>
+    <meta charset="utf-8" />
+    <title>Color Hotel</title>
+    <!-- icons -->
+    <link href="~/Content/QuanLy/plugins/simple-line-icons/simple-line-icons.min.css" rel="stylesheet" type="text/css" />
+    <link href="~/Content/QuanLy/plugins/font-awesome/css/font-awesome.min.css" rel="stylesheet" type="text/css" />
+    <!--bootstrap -->
+    <link href="~/Content/QuanLy/plugins/bootstrap/css/bootstrap.min.css" rel="stylesheet" type="text/css" />
+    <link href="~/Content/QuanLy/plugins/summernote/summernote.css" rel="stylesheet">
+    <!-- morris chart -->
+    <link href="~/Content/QuanLy/plugins/morris/morris.css" rel="stylesheet" type="text/css" />
+    <!-- Material Design Lite CSS -->
+    <link rel="stylesheet" href="~/Content/QuanLy/plugins/material/material.min.css">
+    <link rel="stylesheet" href="~/Content/QuanLy/css/material_style.css">
+    <!-- animation -->
+    <link href="~/Content/QuanLy/css/pages/animate_page.css" rel="stylesheet">
+    <!-- Template Styles -->
+    <link href="~/Content/QuanLy/css/plugins.min.css" rel="stylesheet" type="text/css" />
+    <link href="~/Content/QuanLy/css/style.css" rel="stylesheet" type="text/css" />
+    <link href="~/Content/QuanLy/css/responsive.css" rel="stylesheet" type="text/css" />
+    <link href="~/Content/QuanLy/css/theme-color.css" rel="stylesheet" type="text/css" />
+    <!-- favicon -->
+    <link rel="shortcut icon" href="~/Content/QuanLy/img/logo.png" />
+    <script src="~/Content/QuanLy/Jquery.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@9"></script>
+    <style>
+        #container {
+            height: 500px;
+        }
+
+        .highcharts-figure, .highcharts-data-table table {
+            min-width: 320px;
+            max-width: 700px;
+            margin: 1em auto;
+        }
+
+        .highcharts-data-table table {
+            font-family: Verdana, sans-serif;
+            border-collapse: collapse;
+            border: 1px solid #EBEBEB;
+            margin: 10px auto;
+            text-align: center;
+            width: 100%;
+            max-width: 500px;
+        }
+
+        .highcharts-data-table caption {
+            padding: 1em 0;
+            font-size: 1.2em;
+            color: #555;
+        }
+
+        .highcharts-data-table th {
+            font-weight: 600;
+            padding: 0.5em;
+        }
+
+        .highcharts-data-table td, .highcharts-data-table th, .highcharts-data-table caption {
+            padding: 0.5em;
+        }
+
+        .highcharts-data-table thead tr, .highcharts-data-table tr:nth-child(even) {
+            background: #f8f8f8;
+        }
+
+        .highcharts-data-table tr:hover {
+            background: #f1f7ff;
+        }
+    </style>
+    <script type="text/javascript">
+
+        $(document).ready(function () {
+            checkSession();
+            console.log(sessionStorage.getItem('accessToken'));
+
+
+            var tkThang = 'QuanLy/XuatBaoCaoThongKeTheoThang';
+            var tkQuy = 'QuanLy/XuatBaoCaoThongKeTheoQuy';
+            var tkSSThang = 'QuanLy/SoSanhSoSanhThongKeTheoThang';
+            var tkSSQuy = 'QuanLy/SoSanhSoSanhThongKeTheoQuy';
+
+            var date = new Date();
+            var month = date.getMonth() + 1;
+            var year = date.getFullYear();
+            var quarter = 0;
+            var dsThang = [];
+
+            if (month >= 1 && month <= 3) {
+                quarter = 1;
+                dsThang.push("Tháng 1");
+                dsThang.push("Tháng 2");
+                dsThang.push("Tháng 3");
+            } else if (month >= 4 && month <= 6) {
+                quarter = 2;
+                dsThang.push("Tháng 4");
+                dsThang.push("Tháng 5");
+                dsThang.push("Tháng 6");
+            } else if (month >= 7 && month <= 9) {
+                quarter = 3;
+                dsThang.push("Tháng 7");
+                dsThang.push("Tháng 8");
+                dsThang.push("Tháng 9");
+            } else if (month >= 10 && month <= 12) {
+                quarter = 4;
+                dsThang.push("Tháng 10");
+                dsThang.push("Tháng 11");
+                dsThang.push("Tháng 12");
+            }
+
+            $('#thang').val(month)
+            $('#quy').val(quarter)
+            $('#namthang').val(year)
+            $('#namquy').val(year)
+
+            var txtThang = $('#thang').val();
+            var txtQuy = $('#quy').val();
+            var txtNamThang = $('#namthang').val();
+            var txtNamQuy = $('#namquy').val();
+
+            //create Object Data
+            var dataMonth = {
+                thang: parseInt(txtThang),
+                nam: txtNamThang
+            }
+            var dataQuater = {
+                quy: parseInt(txtQuy),
+                nam: txtNamQuy
+            }
+            var posThang = {
+                tptt: $('#tptthang'),
+                dvtt: $('#dvtthang'),
+                progr_tptt: $('#progr-tptthang'),
+                progr_dvtt: $('#progr-dvtthang')
+            }
+            var posQuy = {
+                tptq: $('#tptquy'),
+                dvtq: $('#dvtquy'),
+                progr_tptq: $('#progr-tptquy'),
+                progr_dvtq: $('#progr-dvtquy'),
+            }
+
+            $('#btnXemThang').click(function () {
+                txtThang = $('#thang').val();
+                txtNamThang = $('#namthang').val();
+                var dataMonth = {
+                    thang: parseInt(txtThang),
+                    nam: txtNamThang
+                }
+                dashboard_FourBox(dataMonth, tkSSThang, function (data) {
+                    posThang.tptt.html(checkTangGiam(data.TienThuePhong, posThang.progr_tptt) + " tháng trước");
+                    posThang.progr_tptt.addClass("width-" + Math.abs(data.TienThuePhong));
+                    posThang.dvtt.html(checkTangGiam(data.TienDichVu, posThang.progr_dvtt) + " tháng trước");
+                    posThang.progr_dvtt.addClass("width-" + Math.abs(data.TienDichVu));
+                });
+                dashboard_Circle(dataMonth);
+            })
+
+            $('#btnXemQuy').click(function () {
+                txtQuy = $('#quy').val();
+                txtNamQuy = $('#namquy').val();
+                var dataQuater = {
+                    quy: parseInt(txtQuy),
+                    nam: txtNamQuy
+                }
+                dashboard_FourBox(dataQuater, tkSSQuy, function (data) {
+                    posQuy.tptq.html(checkTangGiam(data.TienThuePhong, posQuy.progr_tptq) + " quý trước");
+                    posQuy.progr_tptq.addClass("width-" + Math.abs(data.TienThuePhong));
+                    posQuy.dvtq.html(checkTangGiam(data.TienDichVu, posQuy.progr_dvtq) + " quý trước");
+                    posQuy.progr_dvtq.addClass("width-" + Math.abs(data.TienDichVu));
+                });
+                dashboard_ThreeBar(dataQuater, dsThang);
+            })
+
+            //Get DATA
+            dashboard_Circle(dataMonth);
+            dashboard_ThreeBar(dataQuater, dsThang);
+
+            //Get Four Box
+
+            dashboard_FourBox(dataMonth, tkSSThang, function (data) {
+                posThang.tptt.html(checkTangGiam(data.TienThuePhong, posThang.progr_tptt) + " tháng trước");
+                posThang.progr_tptt.addClass("width-" + Math.abs(data.TienThuePhong));
+                posThang.dvtt.html(checkTangGiam(data.TienDichVu, posThang.progr_dvtt) + " tháng trước");
+                posThang.progr_dvtt.addClass("width-" + Math.abs(data.TienDichVu));
+            });
+
+            dashboard_FourBox(dataQuater, tkSSQuy, function (data) {
+                posQuy.tptq.html(checkTangGiam(data.TienThuePhong, posQuy.progr_tptq) + " quý trước");
+                posQuy.progr_tptq.addClass("width-" + Math.abs(data.TienThuePhong));
+                posQuy.dvtq.html(checkTangGiam(data.TienDichVu, posQuy.progr_dvtq) + " quý trước");
+                posQuy.progr_dvtq.addClass("width-" + Math.abs(data.TienDichVu));
+            });
+        });
+    </script>
+
+</head>
+<!-- END HEAD -->
+
+<body class="page-header-fixed sidemenu-closed-hidelogo page-content-white page-md header-white dark-sidebar-color logo-dark">
+    <div class="page-wrapper" style="overflow:hidden">
+        <!-- start header -->
+        <div class="page-header navbar navbar-fixed-top">
+            <div class="page-header-inner ">
+                <!-- logo start -->
+                <div class="page-logo">
+                    <a href="~/TrangChu.cshtml">
+                        @*<img alt="" src="~/Content/QuanLy/img/logo.png" class="img-fluid">*@
+                        <span class="logo-default">Color Hotel</span>
+                    </a>
+                </div>
+                <!-- logo end -->
+                <!-- start mobile menu -->
+                <a href="javascript:;" class="menu-toggler responsive-toggler" data-toggle="collapse"
+                   data-target=".navbar-collapse">
+                    <span></span>
+                </a>
+                <!-- end mobile menu -->
+                <!-- start header menu -->
+                <div class="top-menu">
+                    <ul class="nav navbar-nav pull-right">
+
+                        <li class="dropdown dropdown-user">
+                            <a href="javascript:;" class="dropdown-toggle" data-toggle="dropdown" data-hover="dropdown"
+                               data-close-others="true">
+                                <img alt="" class="img-circle " src="~/Content/QuanLy/img/dp.jpg" />
+                                <span class="username username-hide-on-mobile nameuser">  </span>
+                                <i class="fa fa-angle-down"></i>
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-default animated jello">
+
+                                <li class="divider"> </li>
+
+                                <li>
+                                    <a href="~/DangNhap.cshtml">
+                                        <i class="icon-logout"></i> Log Out
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
+                        <!-- end manage user dropdown -->
+
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <!-- end header -->
+        <!-- start page container -->
+        <div class="page-container">
+            <!-- start sidebar menu -->
+            <!-- end sidebar menu -->
+            <!-- start sidebar menu -->
+            <div class="sidebar-container">
+                <div class="sidemenu-container navbar-collapse collapse fixed-menu">
+                    <div id="remove-scroll">
+                        <ul class="sidemenu page-header-fixed p-t-20" data-keep-expanded="false" data-auto-scroll="true"
+                            data-slide-speed="200">
+                            <li class="sidebar-toggler-wrapper hide">
+                                <div class="sidebar-toggler">
+                                    <span></span>
+                                </div>
+                            </li>
+                            <li class="sidebar-user-panel">
+                                <div class="user-panel">
+                                    <div class="row">
+                                        <div class="sidebar-userpic">
+                                            <img src="~/Content/QuanLy/img/dp.jpg" class="img-responsive" alt="">
+                                        </div>
+                                    </div>
+                                    <div class="profile-usertitle">
+                                        <div class="sidebar-userpic-name nameuser">  </div>
+                                        <div class="profile-usertitle-job" id="roleuser">  </div>
+                                    </div>
+
+                                </div>
+                            </li>
+
+
+
+                            <li class="nav-item active ql">
+                                <a href="/SEP23Team2/Views/QuanLyViews/ThongKe/ThongKe.cshtml" class="nav-link nav-toggle">
+                                    <i class="material-icons">business_center</i>
+                                    <span class="title">Thống Kê</span>
+                                    <span class="arrow"></span>
+                                </a>
+
+                            </li>
+
+                            <li class="nav-item active ql">
+                                <a href="/SEP23Team2/Views/QuanLyViews/DichVu/DSDichVu.cshtml" class="nav-link nav-toggle">
+                                    <i class="material-icons">business_center</i>
+                                    <span class="title">Dịch Vụ</span>
+                                    <span class="arrow"></span>
+                                </a>
+
+                            </li>
+                            <li class="nav-item active ql">
+                                <a href="/SEP23Team2/Views/QuanLyViews/TienIch/DSTienIch.cshtml" class="nav-link nav-toggle">
+                                    <i class="material-icons">group</i>
+                                    <span class="title">Tiện Ích</span>
+                                    <span class="arrow"></span>
+                                </a>
+
+                            </li>
+                            <li class="nav-item active ql">
+                                <a href="/SEP23Team2/Views/QuanLyViews/Phong/DSPhong.cshtml" class="nav-link nav-toggle">
+                                    <i class="material-icons">vpn_key</i>
+                                    <span class="title">Phòng</span>
+                                    <span class="arrow"></span>
+                                </a>
+
+                            </li>
+                            <li class="nav-item active ql">
+                                <a href="/SEP23Team2/Views/QuanLyViews/TKNhanVien/DSTKNhanVien.cshtml" class="nav-link nav-toggle">
+                                    <i class="material-icons">group</i>
+                                    <span class="title">Tài Khoản Nhân Viên</span>
+                                    <span class="arrow"></span>
+                                </a>
+
+                            </li>
+                            <li class="nav-item active ql">
+                                <a href="/SEP23Team2/Views/QuanLyViews/LoaiPhong/LoaiPhong.cshtml" class="nav-link nav-toggle">
+                                    <i class="material-icons">group</i>
+                                    <span class="title">Loại Phòng</span>
+                                    <span class="arrow"></span>
+                                </a>
+
+                            </li>
+
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <!-- end sidebar menu -->
+            <div class="page-content-wrapper">
+                <div class="page-content" style="margin-top:10px">
+                    <div class="page-bar">
+                        <div class="page-title-breadcrumb">
+                            <div class=" pull-left">
+                                <div class="page-title">Thống Kê</div>
+                            </div>
+                            <ol class="breadcrumb page-breadcrumb pull-right">
+                                <li>
+                                    <i class="fa fa-home"></i>&nbsp;<a class="parent-item"
+                                                                       href="../../HomeViews/TrangChu.cshtml">Trang Chủ</a>&nbsp;<i class="fa fa-angle-right"></i>
+                                </li>
+                                <li class="active">Thống Kê</li>
+                            </ol>
+                        </div>
+                    </div>
+                    <!-- start widget -->
+                    <div class="row">
+                        <div class="col-lg-3 col-md-6 col-sm-12 col-12">
+                            <div class="card card-topline-red">
+                                <div class="panel-body">
+                                    <h4>Thuê Phòng Theo Tháng</h4>
+                                    <div class="progressbar-xs progress-rounded progress-striped progress ng-isolate-scope active">
+                                        <div class="progress-bar" role="progressbar"
+                                             aria-valuenow="65" aria-valuemin="0" aria-valuemax="100" id="progr-tptthang"></div>
+                                    </div>
+                                    <span class="text-small margin-top-10 full-width" id="tptthang"></span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-3 col-md-6 col-sm-12 col-12">
+                            <div class="card card-topline-aqua">
+                                <div class="panel-body">
+                                    <h4>Dịch Vụ Theo Tháng</h4>
+                                    <div class="progressbar-xs progress-rounded progress-striped progress ng-isolate-scope active">
+                                        <div class="progress-bar" role="progressbar"
+                                             aria-valuenow="68" aria-valuemin="0" aria-valuemax="100" id="progr-dvtthang"></div>
+                                    </div>
+                                    <span class="text-small margin-top-10 full-width" id="dvtthang"></span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-3 col-md-6 col-sm-12 col-12">
+                            <div class="card card-topline-yellow">
+                                <div class="panel-body">
+                                    <h4>Thuê Phòng Theo Quý</h4>
+                                    <div class="progressbar-xs progress-rounded progress-striped progress ng-isolate-scope active">
+                                        <div class="progress-bar" role="progressbar"
+                                             aria-valuenow="52" aria-valuemin="0" aria-valuemax="100" id="progr-tptquy"></div>
+                                    </div>
+                                    <span class="text-small margin-top-10 full-width" id="tptquy"></span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-3 col-md-6 col-sm-12 col-12">
+                            <div class="card card-topline-purple">
+                                <div class="panel-body">
+                                    <h4>Dịch Vụ Theo Quý</h4>
+                                    <div class="progressbar-xs progress-rounded progress-striped progress ng-isolate-scope active">
+                                        <div class="progress-bar" role="progressbar"
+                                             aria-valuenow="56" aria-valuemin="0" aria-valuemax="100" id="progr-dvtquy"></div>
+                                    </div>
+                                    <span class="text-small margin-top-10 full-width" id="dvtquy"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- end widget -->
+                    <div class="row">
+                        <div class="col-lg-6 col-md-12 col-sm-12 col-12">
+                            <div class="card card-box card-topline-green">
+                                <div class="card-head" style="padding:0;text-align:center">
+                                    <div class="col-lg-3 p-t-20">
+                                        <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label getmdl-select getmdl-select__fix-height txt-full-width">
+
+                                            <input class="mdl-textfield__input" type="text" id="thang" value="" readonly data-id=""
+                                                   tabIndex="-1" style="padding:0">
+                                            <label for="thang" class="pull-right margin-0">
+                                                <i class="mdl-icon-toggle__label material-icons">keyboard_arrow_down</i>
+                                            </label>
+                                            <label for="thang" class="mdl-textfield__label" style="top:0;">Tháng</label>
+                                            <ul data-mdl-for="thang" class="mdl-menu mdl-menu--bottom-left mdl-js-menu" id="thangul">
+                                                <li class="mdl-menu__item">1</li>
+                                                <li class="mdl-menu__item">2</li>
+                                                <li class="mdl-menu__item">3</li>
+                                                <li class="mdl-menu__item">4</li>
+                                                <li class="mdl-menu__item">5</li>
+                                                <li class="mdl-menu__item">6</li>
+                                                <li class="mdl-menu__item">7</li>
+                                                <li class="mdl-menu__item">8</li>
+                                                <li class="mdl-menu__item">9</li>
+                                                <li class="mdl-menu__item">10</li>
+                                                <li class="mdl-menu__item">11</li>
+                                                <li class="mdl-menu__item">12</li>
+                                            </ul>
+                                        </div>
+                                    </div>
+
+
+                                    <div class="col-lg-3 p-t-20">
+                                        <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label getmdl-select getmdl-select__fix-height txt-full-width">
+
+                                            <input class="mdl-textfield__input" type="text" id="namthang" value="" readonly data-id=""
+                                                   tabIndex="-1">
+                                            <label for="namthang" class="pull-right margin-0">
+                                                <i class="mdl-icon-toggle__label material-icons">keyboard_arrow_down</i>
+                                            </label>
+                                            <label for="namthang" class="mdl-textfield__label" style="top:0;">Năm</label>
+                                            <ul data-mdl-for="namthang" class="mdl-menu mdl-menu--bottom-left mdl-js-menu" id="nam-thangul">
+                                                <li class="mdl-menu__item">2010</li>
+                                                <li class="mdl-menu__item">2011</li>
+                                                <li class="mdl-menu__item">2012</li>
+                                                <li class="mdl-menu__item">2013</li>
+                                                <li class="mdl-menu__item">2014</li>
+                                                <li class="mdl-menu__item">2015</li>
+                                                <li class="mdl-menu__item">2016</li>
+                                                <li class="mdl-menu__item">2017</li>
+                                                <li class="mdl-menu__item">2018</li>
+                                                <li class="mdl-menu__item">2019</li>
+                                                <li class="mdl-menu__item">2020</li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-2 p-t-20">
+                                        <button type="button" class="btn btn-success btn-sm m-b-10" id="btnXemThang" style="font-size: 15px;margin-top: 20px">Xem</button>
+                                    </div>
+
+
+
+                                </div>
+                                <div class="card-body no-padding height-9 ">
+                                    <div class="row">
+
+                                        <div id="circle"></div>
+
+
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-lg-6 col-md-12 col-sm-12 col-12">
+                            <div class="card card-box card-topline-yellow">
+                                <div class="card-head" style="padding:0;text-align:center">
+                                    <div class="col-lg-3 p-t-20">
+                                        <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label getmdl-select getmdl-select__fix-height txt-full-width">
+                                            <input class="mdl-textfield__input" type="text" id="quy" value="" readonly data-id=""
+                                                   tabIndex="-1" style="padding: 0;">
+                                            <label for="quy" class="pull-right margin-0">
+                                                <i class="mdl-icon-toggle__label material-icons">keyboard_arrow_down</i>
+                                            </label>
+                                            <label for="quy" class="mdl-textfield__label" style="top:0;">Quý</label>
+                                            <ul data-mdl-for="quy" class="mdl-menu mdl-menu--bottom-left mdl-js-menu" id="quyul">
+                                                <li class="mdl-menu__item">1</li>
+                                                <li class="mdl-menu__item">2</li>
+                                                <li class="mdl-menu__item">3</li>
+                                                <li class="mdl-menu__item">4</li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-3 p-t-20">
+                                        <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label getmdl-select getmdl-select__fix-height txt-full-width">
+
+                                            <input class="mdl-textfield__input" type="text" id="namquy" value="" readonly data-id=""
+                                                   tabIndex="-1">
+                                            <label for="namquy" class="pull-right margin-0">
+                                                <i class="mdl-icon-toggle__label material-icons">keyboard_arrow_down</i>
+                                            </label>
+                                            <label for="namquy" class="mdl-textfield__label" style="top:0;">Năm</label>
+                                            <ul data-mdl-for="namquy" class="mdl-menu mdl-menu--bottom-left mdl-js-menu" id="nam-quyul">
+                                                <li class="mdl-menu__item">2010</li>
+                                                <li class="mdl-menu__item">2011</li>
+                                                <li class="mdl-menu__item">2012</li>
+                                                <li class="mdl-menu__item">2013</li>
+                                                <li class="mdl-menu__item">2014</li>
+                                                <li class="mdl-menu__item">2015</li>
+                                                <li class="mdl-menu__item">2016</li>
+                                                <li class="mdl-menu__item">2017</li>
+                                                <li class="mdl-menu__item">2018</li>
+                                                <li class="mdl-menu__item">2019</li>
+                                                <li class="mdl-menu__item">2020</li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-2 p-t-20">
+                                        <button type="button" class="btn btn-success btn-sm m-b-10" id="btnXemQuy" style="font-size: 15px;margin-top: 20px">Xem</button>
+                                    </div>
+                                </div>
+                                <div class="card-body no-padding height-9">
+                                    <div class="row">
+
+                                        <div id="threeBar"></div>
+
+
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+
+                </div>
+                <div class="page-footer">
+                    <div class="page-footer-inner">
+                        2020 &copy; Color Hotel
+                    </div>
+                    <div class="scroll-to-top">
+                        <i class="icon-arrow-up"></i>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+    <!-- start js include path -->
+    <script src="~/Content/QuanLy/Jquery.js"></script>
+    <script src="~/Content/QuanLy/plugins/popper/popper.min.js"></script>
+    <script src="~/Content/QuanLy/plugins/jquery-blockui/jquery.blockui.min.js"></script>
+    <script src="~/Content/QuanLy/plugins/jquery-slimscroll/jquery.slimscroll.min.js"></script>
+    <!-- bootstrap -->
+    <script src="~/Content/QuanLy/plugins/bootstrap/js/bootstrap.min.js"></script>
+    <script src="~/Content/QuanLy/plugins/sparkline/jquery.sparkline.min.js"></script>
+    <script src="~/Content/QuanLy/js/pages/sparkline/sparkline-data.js"></script>
+    <!-- Common js-->
+    <script src="~/Content/QuanLy/js/app.js"></script>
+    <script src="~/Content/QuanLy/js/layout.js"></script>
+    <script src="~/Content/QuanLy/js/theme-color.js"></script>
+    <!-- material -->
+    <script src="~/Content/QuanLy/plugins/material/material.min.js"></script>
+
+    <!-- animation -->
+    <script src="~/Content/QuanLy/js/pages/ui/animations.js"></script>
+
+
+
+    <script src="~/Content/QuanLy/js/pages/material_select/getmdl-select.js"></script>
+
+
+
+    <!-- end js include path -->
+    <script src="https://code.highcharts.com/highcharts.js"></script>
+    <script src="https://code.highcharts.com/modules/variable-pie.js"></script>
+    <script src="https://code.highcharts.com/modules/exporting.js"></script>
+    <script src="https://code.highcharts.com/modules/export-data.js"></script>
+    <script src="https://code.highcharts.com/modules/accessibility.js"></script>
+
+    <script src="https://code.highcharts.com/modules/series-label.js"></script>
+
+
+    <script src="~/Content/QuanLy/libs_function.js"></script>
+    <!--<script src="~/Content/QuanLy/js/pages/chart/chartjs/home-data2.js"></script>-->
+    <script src="~/Content/QuanLy/DashBoard.js"></script>
+</body>
+
+
+<!-- Mirrored from radixtouch.in/templates/admin/hotel/source/index.cshtml by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 13 Jan 2020 12:36:48 GMT -->
+</html>

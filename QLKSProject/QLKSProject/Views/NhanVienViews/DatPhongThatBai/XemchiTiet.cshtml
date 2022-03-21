@@ -1,0 +1,471 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<!-- BEGIN HEAD -->
+<!-- Mirrored from radixtouch.in/templates/admin/hotel/source/index.cshtml by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 13 Jan 2020 12:35:49 GMT -->
+<head>
+    <meta charset="utf-8" />
+    <title>Color Hotel</title>
+    <!-- icons -->
+    <link href="~/Content/QuanLy/plugins/simple-line-icons/simple-line-icons.min.css" rel="stylesheet" type="text/css" />
+    <link href="~/Content/QuanLy/plugins/font-awesome/css/font-awesome.min.css" rel="stylesheet" type="text/css" />
+    <!--bootstrap -->
+    <link href="~/Content/QuanLy/plugins/bootstrap/css/bootstrap.min.css" rel="stylesheet" type="text/css" />
+    <!-- Material Design Lite CSS -->
+    <link rel="stylesheet" href="~/Content/QuanLy/plugins/material/material.min.css">
+    <link rel="stylesheet" href="~/Content/QuanLy/css/material_style.css">
+    <!-- animation -->
+    <link href="~/Content/QuanLy/css/pages/animate_page.css" rel="stylesheet">
+    <!-- Template Styles -->
+    <link href="~/Content/QuanLy/css/style.css" rel="stylesheet" type="text/css" />
+    <link href="~/Content/QuanLy/css/plugins.min.css" rel="stylesheet" type="text/css" />
+    <link href="~/Content/QuanLy/css/responsive.css" rel="stylesheet" type="text/css" />
+    <link href="~/Content/QuanLy/css/theme-color.css" rel="stylesheet" type="text/css" />
+    <!-- favicon -->
+    <link rel="shortcut icon" href="~/Content/QuanLy/img/logo.png" />
+    <link rel="stylesheet" href="~/Content/QuanLy/plugins/flatpicker/flatpickr.min.css">
+    <!-- favicon -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@9"></script>
+    <script src="~/Content/QuanLy/Jquery.js"></script>
+    <script src="~/Content/QuanLy/libs_function.js"></script>
+    <style>
+        #dsdatphong tr td input {
+            border: none;
+            padding: 10px 5px;
+            background: none;
+        }
+
+        #dsdatphong tr td select {
+            padding: 8px;
+            border: none;
+            background: none;
+        }
+    </style>
+    <script type="text/javascript">
+        $(document).ready(function () {
+            checkSession();
+
+            var idList = $('#dsdatphong');
+            var idListPhongTrong = $('#dsphongtrong');
+            var layDS = 'NhanVien/LayDanhSachKhachHangTheoMaDoan/';
+            var lauDSPhongTheoNgay = 'NhanVien/LayDanhSachPhongTheoDieuKien';
+            var info = {
+                id: idList,
+                url: layDS
+            }
+
+            loadDSKHTheoMaDoan(info, sessionStorage.getItem('madoan'));
+
+            $('#luu').click(function () {
+                $('#luu').css('display', 'none');
+                $('#loading').css('display', 'block');
+                var list = [];
+
+
+                var length = parseInt(sessionStorage.getItem('length'));
+                for (i = 0; i < length; i++) {
+                    var obj = {
+                        HoVaTen: $('#hovaten' + i).val(),
+                        SoDienThoai: $('#sdt' + i).val(),
+                        Email: $('#email' + i).val(),
+                        DiaChi: $('#diachi' + i).val(),
+                        Nhom: $('#nhom' + i).val(),
+                        LoaiKhachHang: $('#loaikh' + i).val(),
+                        NguoiDaiDienCuaTreEm: $('#nguoiDD' + i).val(),
+                        GioiTinh: $('#gioitinh' + i).val(),
+                        MaDoan: $('#madoan' + i).val(),
+                        ID: $('#id' + i).val(),
+                        ThoiGianNhan: $('#tgnhan' + i).val(),
+                        ThoiGianTra: $('#tgtra' + i).val(),
+                        TruongDoan: $('#truongdoan' + i).val(),
+                        IsDelete: $('#isdelete' + i).val(),
+                        TrangThaiDatPhong: $('#trangthaidatphong' + i).val(),
+                        IDPhong: $('#idphong' + i).val(),
+                        GhiChu: $('#ghichu' + i).val(),
+                        TrangThaiXacNhan: $('#trangthaixacnhan' + i).val(),
+                    }
+                    list.push(obj);
+                }
+                console.log(list);
+                XepPhongThuNghiem(list);
+
+
+
+            })
+
+            $('#xemphongtrong').click(function () {
+                var thoigianNhan;
+                var thoigianTra;
+                if (!$('#daterange').val()) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Oops...',
+                        text: 'Thông tin không hợp lệ !'
+                    })
+                } else {
+                    if ($('#daterange').val().indexOf(' to ') != -1) {
+                        var thoigian = $('#daterange').val().split(' to ');
+                        thoigianNhan = thoigian[0];
+                        thoigianTra = thoigian[1];
+                    } else {
+                        thoigianNhan = $('#daterange').val();
+                        thoigianTra = $('#daterange').val();
+                    }
+
+
+                    var dataInput = {
+                        NgayNhan: thoigianNhan,
+                        NgayTra: thoigianTra
+                    }
+                    console.log(dataInput);
+                    var info = {
+                        url: lauDSPhongTheoNgay,
+                        id: idListPhongTrong,
+                    }
+
+                    loadDSPhongTrong(info, dataInput);
+                }
+
+
+            })
+
+            $('#doingay').click(function () {
+                var thoigianNhan;
+                var thoigianTra;
+                if (!$('#datechange').val()) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Oops...',
+                        text: 'Thông tin không hợp lệ !'
+                    })
+
+                } else {
+                    if ($('#datechange').val().indexOf(' to ') != -1) {
+                        var thoigian = $('#datechange').val().split(' to ');
+                        thoigianNhan = thoigian[0];
+                        thoigianTra = thoigian[1];
+                    } else {
+                        thoigianNhan = $('#datechange').val();
+                        thoigianTra = $('#datechange').val();
+                    }
+                    var length = sessionStorage.getItem('length');
+                    for (i = 0; i < length; i++) {
+                        $('#tgnhan' + i).val(thoigianNhan);
+                        $('#tgtra' + i).val(thoigianTra);
+
+                    }
+                    var tgNhan = new Date(thoigianNhan);
+                    var tgTra = new Date(thoigianTra);
+
+                    var str = 'Từ <span style="font-size: 18px;font-weight:700;">' + tgNhan.getDate() + '-' + (tgNhan.getMonth() + 1) + '-' + tgNhan.getFullYear() + '</span>&nbsp;&nbsp; Đến <span style="font-size: 18px;font-weight:700;">' + '' + tgTra.getDate() + '-' + (tgTra.getMonth() + 1) + '-' + tgTra.getFullYear() + '</span>';
+                    $('#thoigian').html(str)
+                }
+
+            })
+        })
+    </script>
+
+</head>
+<!-- END HEAD -->
+
+<body class="page-header-fixed sidemenu-closed-hidelogo page-content-white page-md header-white dark-sidebar-color logo-dark" >
+    <div class="page-wrapper" style="overflow:hidden">
+        <!-- start header -->
+        <div class="page-header navbar navbar-fixed-top">
+            <div class="page-header-inner ">
+                <!-- logo start -->
+                <div class="page-logo">
+                    <a href="~/TrangChu.cshtml">
+                        @*<img alt="" src="~/Content/QuanLy/img/logo.png">*@
+                        <span class="logo-default">Color Hotel</span>
+                    </a>
+                </div>
+                <!-- logo end -->
+                <!--<ul class="nav navbar-nav navbar-left in">
+                    <li><a href="#" class="menu-toggler sidebar-toggler"><i class="icon-menu"></i></a></li>
+                </ul>
+                <form class="search-form-opened" action="#" method="GET">
+                    <div class="input-group">
+                        <input type="text" class="form-control" placeholder="Search..." name="query">
+
+                    </div>
+                </form>-->
+                <!-- start mobile menu -->
+                <a href="javascript:;" class="menu-toggler responsive-toggler" data-toggle="collapse"
+                   data-target=".navbar-collapse">
+                    <span></span>
+                </a>
+                <!-- end mobile menu -->
+                <!-- start header menu -->
+                <div class="top-menu">
+                    <ul class="nav navbar-nav pull-right">
+                        <!-- start notification dropdown -->
+                        <!-- end notification dropdown -->
+                        <!-- start message dropdown -->
+                        <!-- end message dropdown -->
+                        <!-- start manage user dropdown -->
+                        <li class="dropdown dropdown-user">
+                            <a href="javascript:;" class="dropdown-toggle" data-toggle="dropdown" data-hover="dropdown"
+                               data-close-others="true">
+                                <img alt="" class="img-circle " src="~/Content/QuanLy/img/nv.jpg" />
+                                <span class="username username-hide-on-mobile nameuser"> </span>
+                                <i class="fa fa-angle-down"></i>
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-default animated jello">
+
+
+                                <li class="divider"> </li>
+
+                                <li>
+                                    <a href="~/DangNhap.cshtml">
+                                        <i class="icon-logout"></i> Log Out
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
+                        <!-- end manage user dropdown -->
+
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <!-- end header -->
+        <!-- start page container -->
+        <div class="page-container">
+            <!-- start sidebar menu -->
+            <div class="sidebar-container">
+                <div class="sidemenu-container navbar-collapse collapse fixed-menu">
+                    <div id="remove-scroll">
+                        <ul class="sidemenu page-header-fixed p-t-20" data-keep-expanded="false" data-auto-scroll="true"
+                            data-slide-speed="200">
+                            <li class="sidebar-toggler-wrapper hide">
+                                <div class="sidebar-toggler">
+                                    <span></span>
+                                </div>
+                            </li>
+                            <li class="sidebar-user-panel">
+                                <div class="user-panel">
+                                    <div class="row">
+                                        <div class="sidebar-userpic">
+                                            <img src="~/Content/QuanLy/img/nv.jpg" class="img-responsive" alt="">
+                                        </div>
+                                    </div>
+                                    <div class="profile-usertitle">
+                                        <div class="sidebar-userpic-name nameuser"></div>
+                                        <div class="profile-usertitle-job" id="roleuser"> </div>
+                                    </div>
+
+                                </div>
+                            </li>
+
+                            <li class="nav-item active nv">
+                                <a href="/SEP23Team2/Views/NhanVienViews/Doan/Doan.cshtml" class="nav-link nav-toggle">
+                                    <i class="material-icons">group</i>
+                                    <span class="title">Đoàn</span>
+                                    <span class="arrow"></span>
+                                </a>
+
+                            </li>
+                            <li class="nav-item active nv">
+                                <a href="/SEP23Team2/Views/NhanVienViews/DatPhongThanhCong/DatPhongThanhCong.cshtml" class="nav-link nav-toggle">
+                                    <i class="material-icons">search</i>
+                                    <span class="title">Đặt Phòng Thành Công</span>
+                                    <span class="arrow"></span>
+                                </a>
+
+                            </li>
+                            <li class="nav-item active nv">
+                                <a href="/SEP23Team2/Views/NhanVienViews/DatPhongThatBai/DatPhongThatBai.cshtml" class="nav-link nav-toggle">
+                                    <i class="material-icons">assignment_late</i>
+                                    <span class="title">Đặt Phòng Thất Bại</span>
+                                    <span class="arrow"></span>
+                                </a>
+
+                            </li>
+                            <li class="nav-item active nv">
+                                <a href="/SEP23Team2/Views/NhanVienViews/Phong_NhanVien/DanhSachPhong.cshtml" class="nav-link nav-toggle">
+                                    <i class="material-icons">vpn_key</i>
+                                    <span class="title">Phòng</span>
+                                    <span class="arrow"></span>
+                                </a>
+
+                            </li>
+                            <li class="nav-item active nv">
+                                <a href="/SEP23Team2/Views/NhanVienViews/ThemDichVu/ThemDichVu.cshtml" class="nav-link nav-toggle">
+                                    <i class="material-icons">queue</i>
+                                    <span class="title">Thêm Dịch Vụ - Phòng</span>
+                                    <span class="arrow"></span>
+                                </a>
+
+                            </li>
+
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <!-- end sidebar menu -->
+            <div class="page-content-wrapper" style="margin-top:10px;">
+                <div class="page-content">
+                    <div class="page-bar">
+                        <div class="page-title-breadcrumb">
+                            <div class=" pull-left">
+                                <div class="page-title">Danh Sách Đoàn</div>
+                                <p id="thoigian"></p>
+                            </div>
+                            <ol class="breadcrumb page-breadcrumb pull-right">
+                                <li>
+                                    <i class="fa fa-home"></i>&nbsp;<a class="parent-item"
+                                                                       href="../Phong_NhanVien/DanhSachPhong.cshtml">Trang Chủ</a>&nbsp;<i class="fa fa-angle-right"></i>
+                                </li>
+
+                                <li class="active">Danh Sách Đoàn</li>
+
+                            </ol>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="card-box" style="border-top: 2px solid red">
+
+                                <div class="row" style="margin: 11px 0 -25px 11px;">
+                                    <div class="col-lg-3">
+                                        <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label txt-full-width">
+                                            <input class="mdl-textfield__input" type="text" id="daterange">
+                                            <label class="mdl-textfield__label">Chọn Thời Gian </label>
+                                        </div>
+
+
+                                    </div>
+                                    <div class="col-lg-2" style="line-height:72px;">
+                                        <button class="btn btn-success" id="xemphongtrong">Xem Phòng Trống</button>
+
+                                    </div>
+                                    <div class="col-lg-3">
+                                        <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label txt-full-width">
+                                            <input class="mdl-textfield__input" type="text" id="datechange">
+                                            <label class="mdl-textfield__label">Chọn Thời Gian</label>
+                                        </div>
+
+                                    </div>
+                                    <div class="col-lg-2" style="line-height:72px;float:right">
+                                        <button class="btn btn-info" id="doingay">Đổi Ngày Nhận - Trả</button>
+
+                                    </div>
+
+                                </div>
+
+                                <div class="card-body">
+
+                                    <div class="table-scrollable">
+                                        <table class="table table-striped"
+                                               id="mainTable">
+                                            <thead>
+                                                <tr>
+                                                    @*<th> Họ và Tên</th>
+                                                        <th> Nhóm </th>
+                                                        <th> Trường Đoàn </th>
+                                                        <th> Người Đại Diện </th>
+                                                        <th> Giới Tính </th>
+                                                        <th> Ghi Chú </th>*@
+
+                                                    <th style="text-align:left;"> Họ và Tên</th>
+                                                    <th class="center" style=""> Nhóm </th>
+                                                    <th class="center" style=""> Trường Đoàn </th>
+                                                    <th class="" style=""> Người Đại Diện </th>
+                                                    <th class="center" style=""> Giới Tính </th>
+                                                    <th style="min-width:215px"> Ghi Chú </th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="dsdatphong" style="border-bottom: 3px solid;">
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                    <div class="row p-b-20" style="float: right;">
+                                        <div class="col-md-6 col-sm-6 col-6">
+                                            <div class="btn-group">
+                                                <div class="mdl-spinner mdl-spinner--single-color mdl-js-spinner is-active" id="loading" style="display:none;"></div>
+                                                <button id="luu" class="btn btn-info">
+                                                    Xếp Phòng
+                                                </button>
+
+                                            </div>
+                                        </div>
+
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal fade" tabindex="-1" id="dsphongtrongModal" data-keyboard="false" data-backdrop="static">
+                <div class="modal-dialog modal-sm">
+                    <div class="modal-content" style="width:400px">
+
+                        <div class="modal-body">
+                            <div class="row">
+                                <div class="col-sm-12">
+                                    <h4 class="modal-header" style="height:40px;padding:0;margin:0;border-bottom:none">Danh Sách Phòng Trống</h4>
+                                    <div class="card-box" style="border-top: 2px solid green">
+
+                                        <div id="dsphongtrong">
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-12 p-t-20 text-center">
+                                        <button type="button"
+                                                class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect m-b-10 btn-primary" data-dismiss="modal">
+                                            Ok
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+
+                    </div>
+                </div>
+                <!-----end modal-->
+                <!-- end page content -->
+            </div>
+
+            <!-- Modal -->
+            <!-- end page container -->
+            <!-- start footer -->
+            <div class="page-footer">
+                <div class="page-footer-inner">
+                    2020 &copy; Hotel Color
+
+                </div>
+                <div class="scroll-to-top">
+                    <i class="icon-arrow-up"></i>
+                </div>
+            </div>
+            <!-- end footer -->
+        </div>
+    </div>
+    <script src="~/Content/QuanLy/plugins/jquery/jquery.min.js"></script>
+    <script src="~/Content/QuanLy/plugins/popper/popper.min.js"></script>
+    <script src="~/Content/QuanLy/plugins/jquery-blockui/jquery.blockui.min.js"></script>
+    <script src="~/Content/QuanLy/plugins/jquery-slimscroll/jquery.slimscroll.min.js"></script>
+    <!-- bootstrap -->
+    <script src="~/Content/QuanLy/plugins/bootstrap/js/bootstrap.min.js"></script>
+    <!-- data tables -->
+    <script src="~/Content/QuanLy/plugins/datatables/jquery.dataTables.min.js"></script>
+    <script src="~/Content/QuanLy/plugins/datatables/editabletable.js"></script>
+    <script src="~/Content/QuanLy/js/pages/table/editable_table_data.js"></script>
+    <!-- Common js-->
+    <script src="~/Content/QuanLy/js/app.js"></script>
+    <script src="~/Content/QuanLy/js/layout.js"></script>
+    <script src="~/Content/QuanLy/js/theme-color.js"></script>
+    <!-- Material -->
+    <script src="~/Content/QuanLy/plugins/material/material.min.js"></script>
+    <script src="~/Content/QuanLy/plugins/flatpicker/flatpickr.min.js"></script>
+    <script src="~/Content/QuanLy/js/pages/datetime/datetime-data.js"></script>
+    <!-- animation -->
+    <script src="~/Content/QuanLy/js/pages/ui/animations.js"></script>
+</body>
+
+
+<!-- Mirrored from radixtouch.in/templates/admin/hotel/source/index.cshtml by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 13 Jan 2020 12:36:48 GMT -->
+</html>
